@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Klasifikasi Kematangan Pisang</title>
+  <style>
+    :root { color-scheme: light; --ink:#20251f; --muted:#667064; --line:#dfe5db; --accent:#3f6b3b; --bg:#f5f7f2; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,sans-serif; background:var(--bg); color:var(--ink); }
+    main { max-width:980px; margin:38px auto; padding:0 18px 40px; }
+    header { margin-bottom:24px; }
+    h1 { font-size:clamp(1.7rem,4vw,2.4rem); margin:0 0 8px; letter-spacing:-.03em; }
+    p { color:var(--muted); line-height:1.55; }
+    .layout { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:20px; align-items:start; }
+    .card { background:white; border:1px solid var(--line); border-radius:18px; padding:22px; box-shadow:0 5px 20px #26351b0a; }
+    label { display:block; font-weight:650; margin-bottom:10px; }
+    input[type=file] { display:block; width:100%; border:1px dashed #aab8a4; border-radius:12px; padding:14px; background:#fbfcfa; }
+    button { border:0; border-radius:11px; padding:12px 18px; margin-top:15px; background:var(--accent); color:white; font-weight:700; cursor:pointer; }
+    button:hover { filter:brightness(.94); }
+    .result { border-radius:14px; background:#f0f5eb; padding:16px; margin:14px 0; }
+    .prediction { font-size:1.45rem; font-weight:750; margin:4px 0; text-transform:capitalize; }
+    .meter { height:8px; background:#e7ebe3; border-radius:99px; overflow:hidden; margin:7px 0 14px; }
+    .meter span { display:block; height:100%; background:var(--accent); }
+    .preview { width:100%; max-height:420px; object-fit:contain; border-radius:12px; background:#f4f4f4; }
+    .error { background:#fff0ed; color:#8e2c1b; border-radius:10px; padding:12px; }
+    .small { font-size:.88rem; color:var(--muted); }
+    .empty { min-height:150px; display:grid; place-items:center; text-align:center; border:1px dashed var(--line); border-radius:12px; padding:18px; }
+    @media(max-width:720px) { .layout { grid-template-columns:1fr; } main { margin-top:22px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Klasifikasi Kematangan Pisang</h1>
+    <p>Unggah gambar untuk memprediksi apakah pisang belum matang, matang, atau terlalu matang/busuk.</p>
+  </header>
+  <div class="layout">
+    <section class="card">
+      <h2>Masukkan gambar</h2>
+      <form method="post" enctype="multipart/form-data">
+        <label for="image">Pilih file gambar</label>
+        <input id="image" type="file" name="image" accept="image/*" required>
+        <button type="submit">Klasifikasikan</button>
+      </form>
+      <p class="small">Format umum JPG, PNG, atau WEBP. Maksimal 8 MB. Perangkat inferensi: {{ device }}.</p>
+      {% if error %}<div class="error">{{ error }}</div>{% endif %}
+      {% if image_data %}
+        <h3>Gambar yang diproses</h3>
+        <img class="preview" src="data:image/jpeg;base64,{{ image_data }}" alt="Gambar yang diunggah">
+      {% endif %}
+    </section>
+    <section class="card">
+      <h2>Hasil prediksi</h2>
+      {% if prediction %}
+        <div class="result">
+          <div class="small">Kelas prediksi</div>
+          <div class="prediction">{{ prediction }}</div>
+          <strong>Confidence: {{ "%.2f"|format(confidence) }}%</strong>
+        </div>
+        <h3>Skor tiap kelas</h3>
+        {% for item in results %}
+          <div><strong>{{ item.name }}</strong> <span class="small">— {{ "%.2f"|format(item.confidence) }}%</span></div>
+          <div class="meter"><span style="width:{{ item.confidence }}%"></span></div>
+        {% endfor %}
+        <p class="small">Confidence adalah skor model, bukan jaminan bahwa prediksi benar.</p>
+      {% else %}
+        <div class="empty"><p>Hasil prediksi akan tampil di sini setelah kamu mengunggah gambar.</p></div>
+      {% endif %}
+    </section>
+  </div>
+</main>
+</body>
+</html>
