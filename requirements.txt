@@ -1,0 +1,10 @@
+torch
+torchvision
+timm
+huggingface_hub
+numpy
+matplotlib
+scikit-learn
+Pillow
+flask
+
